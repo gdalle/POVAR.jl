@@ -155,7 +155,7 @@ function estimate_θ_sparse(π, Y, a, b, ω, h₀, ŝ)
 	Γ₁ = estimate_Γ(π, Y, a, b, ω, h₀+1)
 
 	model = Model(Clp.Optimizer)
-	# set_optimizer_attribute(model, "LogLevel", 0)
+	set_optimizer_attribute(model, "LogLevel", 0)
 	@variable(model, θ₊[1:D, 1:D] >= 0)
 	@variable(model, θ₋[1:D, 1:D] >= 0)
 	@variable(model, λ)
@@ -407,7 +407,6 @@ begin
 		s_errors_dense[p] = Float64[]
 		s_errors_sparse[p] = Float64[]
 		for s in s_values
-			println(p, " ", s)
 			push!(
 				s_errors_dense[p],
 				estimation_error(p=p, D=D_for_s, s=s, ŝ=D_for_s)
@@ -478,7 +477,6 @@ begin
 		Ds_errors_dense[p] = Float64[]
 		Ds_errors_sparse[p] = Float64[]
 		for D in D_values_for_s
-			println(p, " ", D)
 			push!(
 				Ds_errors_dense[p],
 				estimation_error(p=p, D=D, s=s_for_D, ŝ=D)
