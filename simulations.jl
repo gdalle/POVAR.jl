@@ -60,6 +60,9 @@ md"""
 # ╔═╡ 586bcb26-c931-4d6d-87ac-dc82a93a5a4e
 Random.seed!(63)
 
+# ╔═╡ 8acaf22f-1d73-4d20-a489-7e2851fb7a08
+plot_path = "plots/"
+
 # ╔═╡ 2fcdb163-f32c-4dd5-87ff-d463fd521ce4
 md"""
 ## Simulation
@@ -295,6 +298,7 @@ begin
 		)
 	end
 	axislegend(ax_T)
+	save(joinpath(plot_path, "influence_T.pdf"), fig_T)
 	fig_T
 end
 
@@ -346,6 +350,7 @@ begin
 	end
 	axislegend(ax_D, position=:lt)
 	fig_D
+	save(joinpath(plot_path, "influence_D.pdf"), fig_D)
 end
 
 # ╔═╡ 56c6cd18-fbc3-47e5-945c-53fd6293c6b6
@@ -386,6 +391,7 @@ begin
 	end
 	axislegend(ax_ω, position=:lt)
 	fig_ω
+	save(joinpath(plot_path, "influence_omega.pdf"), fig_ω)
 end
 
 # ╔═╡ 5d398ec9-13db-4a29-bf20-8551e757d92c
@@ -454,6 +460,7 @@ begin
 		)
 	end
 	axislegend(ax_s, position=:lt)
+	save(joinpath(plot_path, "influence_s_fixed_D.pdf"), fig_s)
 	fig_s
 end
 
@@ -547,6 +554,7 @@ begin
 		)
 	end
 	axislegend(ax_Ds, position=:lt, nbanks=1)
+	save(joinpath(plot_path, "influence_D_fixed_s.pdf"), fig_Ds)
 	fig_Ds
 end
 
@@ -604,6 +612,7 @@ begin
 		)
 	end
 	axislegend(ax_h₀)
+	save(joinpath(plot_path, "influence_h0.pdf"), fig_h₀)
 	fig_h₀
 end
 
@@ -671,6 +680,7 @@ begin
 		)
 	end
 	axislegend(ax_b)
+	save(joinpath(plot_path, "influence_b.pdf"), fig_b)
 	fig_b
 end
 
@@ -732,6 +742,7 @@ begin
 		label=L"Log estimation error $\log_{10} ||\hat{\theta} - \theta ||_{\infty}$"
 	)
 	axislegend(ax_ab)
+	save(joinpath(plot_path, "influence_ab.pdf"), fig_ab)
 	fig_ab
 end
 
@@ -773,6 +784,7 @@ begin
 		hm2,
 		label=L"Log estimation error $\log_{10} ||\hat{\theta} - \theta ||_{\infty}$"
 	)
+	save(joinpath(plot_path, "influence_pb.pdf"), fig_pb)
 	fig_pb
 end
 
@@ -2140,6 +2152,7 @@ version = "3.5.0+0"
 # ╟─01676dff-d535-4acd-9d28-85221e1d34f7
 # ╠═cc48914c-6e47-11ec-2ebb-a734d4f5f9fc
 # ╠═586bcb26-c931-4d6d-87ac-dc82a93a5a4e
+# ╠═8acaf22f-1d73-4d20-a489-7e2851fb7a08
 # ╟─2fcdb163-f32c-4dd5-87ff-d463fd521ce4
 # ╠═b641ffb3-d1ad-40e2-be79-bac2dddde8cf
 # ╠═934fa46d-3b64-48fe-a325-72bf1a453dcc
@@ -2159,45 +2172,45 @@ version = "3.5.0+0"
 # ╟─cb0cd770-9aec-463f-ba2f-a04c712a2e62
 # ╠═bbb959dd-74c8-4924-9eee-52ea4c67cc3e
 # ╠═9288b659-c784-48ea-9110-5cf33f68179b
-# ╟─be6db533-e3d4-4d96-bc90-8063db960a7f
+# ╠═be6db533-e3d4-4d96-bc90-8063db960a7f
 # ╟─f35c9fd1-be04-47f9-a390-4ed891c9e616
 # ╠═758f7227-e647-4378-bae7-98267f977ba3
 # ╠═66fb58c0-c7ef-4e14-b73a-c869d9962cc1
-# ╟─99801229-d58b-41a1-aae7-fd672f9b0f97
+# ╠═99801229-d58b-41a1-aae7-fd672f9b0f97
 # ╟─56c6cd18-fbc3-47e5-945c-53fd6293c6b6
 # ╠═602588a7-1989-4dd3-a66a-e5f6bf72f904
 # ╠═a214165b-2903-42a0-88f1-ecd0f3a90e82
-# ╟─8b554763-8a84-4497-b5c1-2f5e3a41b96e
+# ╠═8b554763-8a84-4497-b5c1-2f5e3a41b96e
 # ╟─5d398ec9-13db-4a29-bf20-8551e757d92c
 # ╠═db0e8104-918c-46a0-9f50-920b44474dcd
 # ╠═7c0fbd79-e9c2-49b3-98c4-f67bb730d49e
 # ╠═dd47d8a8-b379-4cc5-991d-6df0d0f6fcb7
-# ╟─16ae6f4e-d74d-4263-9ca8-b2b14ec71d3a
+# ╠═16ae6f4e-d74d-4263-9ca8-b2b14ec71d3a
 # ╟─5781a0d3-428d-410f-8acb-5cd1a39118a1
 # ╠═aef4d77b-ee37-4f27-b350-7939520f0e48
 # ╠═29d1d386-52ca-4ff5-93a7-d4eeda1d758f
 # ╠═cf97f7df-3930-4fc8-8077-6379a7365e5c
-# ╟─a1c9b17b-a5b5-43a0-824d-64b7de26be76
+# ╠═a1c9b17b-a5b5-43a0-824d-64b7de26be76
 # ╟─3e99926b-bcba-4446-9485-c14e02aaf880
 # ╠═4f3ff83f-56b9-42b7-9844-cebf8eea9323
 # ╠═0ecd2072-8669-48c3-90c4-eea124a7b164
 # ╠═eb014af1-18e4-4eda-8a65-7c8d630c3054
 # ╠═f033f1d8-24c6-4d82-8ada-599916dc5ff6
 # ╠═dc8c82bd-7074-46e4-b574-1f6a3b810cd9
-# ╟─5595ed61-e5f1-4686-b8f6-9c3587270ea5
+# ╠═5595ed61-e5f1-4686-b8f6-9c3587270ea5
 # ╟─2c7f8e1b-66af-4d40-8aef-7a2c6ea3ad03
 # ╠═3a33b69f-53dd-4d70-b2c1-854a4e633775
 # ╠═8907a8e2-1412-4164-88cd-3789507b6194
 # ╠═fd30295d-72ba-4757-8032-eebad56717a3
-# ╟─67032a61-fcc3-49b3-a68e-31c1ccf896fa
+# ╠═67032a61-fcc3-49b3-a68e-31c1ccf896fa
 # ╟─49ed15cb-207a-4a58-8911-3934ddbb6f80
 # ╠═2221c55c-9332-4299-b450-f11577130325
 # ╠═7dab4ee1-fbcb-486e-9276-cc2474176219
 # ╠═3a659443-e6ee-4dea-a9be-60ece7f83e82
 # ╠═751c6b7f-9a50-42d3-ac74-bae7c0a85fc8
-# ╟─8e113c55-d021-46f8-9414-75a996050f37
+# ╠═8e113c55-d021-46f8-9414-75a996050f37
 # ╠═a52bcfb9-326c-4ecd-bdc0-4c1a21b824ad
 # ╠═faaf2393-19f5-44d6-9277-7196b35f2d4e
-# ╟─c16f2c5c-3d79-4e8b-89bb-cb9a3d25da21
+# ╠═c16f2c5c-3d79-4e8b-89bb-cb9a3d25da21
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
