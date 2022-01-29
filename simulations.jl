@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -15,7 +15,7 @@ begin
 	using MathOptInterface
 	using PlutoProfile
 	using PlutoUI
-	using ProgressMeter
+	using ProgressLogging
 	using Random
 	using Statistics
 end
@@ -73,7 +73,7 @@ begin
 	D̄ = 5
 	σ̄ = 1.
 	p̄ = 1.
-	ω̄ = 0.
+	ω̄ = 0.1
 	T̄ = 10000
 end;
 
@@ -261,9 +261,12 @@ md"""
 T_values = round.(Int, 10 .^ range(2, 5, npoints))
 
 # ╔═╡ 9288b659-c784-48ea-9110-5cf33f68179b
-T_errors = Dict(
-	p => [estimation_error(p=p, T=T) for T in T_values] for p in p_values
-)
+begin
+	T_errors = Dict(p => Float64[] for p in p_values)
+	@progress for p in p_values, T in T_values
+		push!(T_errors[p], estimation_error(p=p, T=T))
+	end
+end
 
 # ╔═╡ be6db533-e3d4-4d96-bc90-8063db960a7f
 begin
@@ -311,10 +314,12 @@ md"""
 D_values = round.(Int, 10 .^ range(0.5, 2, npoints))
 
 # ╔═╡ 66fb58c0-c7ef-4e14-b73a-c869d9962cc1
-D_errors = Dict(
-	p => [estimation_error(p=p, D=D) for D in D_values]
-	for p in p_values
-)
+begin
+	D_errors = Dict(p => Float64[] for p in p_values)
+	@progress for p in p_values, D in D_values
+		push!(D_errors[p], estimation_error(p=p, D=D))
+	end
+end
 
 # ╔═╡ 99801229-d58b-41a1-aae7-fd672f9b0f97
 begin
@@ -349,8 +354,8 @@ begin
 		)
 	end
 	axislegend(ax_D, position=:lt)
-	fig_D
 	save(joinpath(plot_path, "influence_D.pdf"), fig_D)
+	fig_D
 end
 
 # ╔═╡ 56c6cd18-fbc3-47e5-945c-53fd6293c6b6
@@ -362,10 +367,12 @@ md"""
 ω_values = 10 .^ range(-2, 2, npoints)
 
 # ╔═╡ a214165b-2903-42a0-88f1-ecd0f3a90e82
-ω_errors = Dict(
-	p => [estimation_error(p=p, ω=ω) for ω in ω_values]
-	for p in p_values
-)
+begin
+	ω_errors = Dict(p => Float64[] for p in p_values)
+	@progress for p in p_values, ω in ω_values
+		push!(ω_errors[p], estimation_error(p=p, ω=ω))
+	end
+end
 
 # ╔═╡ 8b554763-8a84-4497-b5c1-2f5e3a41b96e
 begin
@@ -390,8 +397,8 @@ begin
 		)
 	end
 	axislegend(ax_ω, position=:lt)
-	fig_ω
 	save(joinpath(plot_path, "influence_omega.pdf"), fig_ω)
+	fig_ω
 end
 
 # ╔═╡ 5d398ec9-13db-4a29-bf20-8551e757d92c
@@ -403,25 +410,21 @@ md"""
 D_for_s = 50
 
 # ╔═╡ 7c0fbd79-e9c2-49b3-98c4-f67bb730d49e
-s_values = 5:2:30
+s_values = 5:1:30
 
 # ╔═╡ dd47d8a8-b379-4cc5-991d-6df0d0f6fcb7
 begin
-	s_errors_dense = Dict{Float64, Vector{Float64}}()
-	s_errors_sparse = Dict{Float64, Vector{Float64}}()
-	for p in p_values
-		s_errors_dense[p] = Float64[]
-		s_errors_sparse[p] = Float64[]
-		for s in s_values
-			push!(
-				s_errors_dense[p],
-				estimation_error(p=p, D=D_for_s, s=s, ŝ=D_for_s)
-			)
-			push!(
-				s_errors_sparse[p],
-				estimation_error(p=p, D=D_for_s, s=s, ŝ=s)
-			)
-		end
+	s_errors_dense = Dict(p => Float64[] for p in p_values)
+	s_errors_sparse = Dict(p => Float64[] for p in p_values)
+	@progress for p in p_values, s in s_values
+		push!(
+			s_errors_dense[p],
+			estimation_error(p=p, D=D_for_s, s=s, ŝ=D_for_s)
+		)
+		push!(
+			s_errors_sparse[p],
+			estimation_error(p=p, D=D_for_s, s=s, ŝ=s)
+		)
 	end
 end
 
@@ -473,26 +476,21 @@ md"""
 s_for_D = 5
 
 # ╔═╡ 29d1d386-52ca-4ff5-93a7-d4eeda1d758f
-D_values_for_s = 10:2:50
+D_values_for_s = 5:1:50
 
 # ╔═╡ cf97f7df-3930-4fc8-8077-6379a7365e5c
 begin
-	Ds_errors_dense = Dict{Float64, Vector{Float64}}()
-	Ds_errors_sparse = Dict{Float64, Vector{Float64}}()
-	for p in p_values
-		p in [0.1, 0.5] && continue
-		Ds_errors_dense[p] = Float64[]
-		Ds_errors_sparse[p] = Float64[]
-		for D in D_values_for_s
-			push!(
-				Ds_errors_dense[p],
-				estimation_error(p=p, D=D, s=s_for_D, ŝ=D)
-			)
-			push!(
-				Ds_errors_sparse[p],
-				estimation_error(p=p, D=D, s=s_for_D, ŝ=s_for_D)
-			)
-		end
+	Ds_errors_dense = Dict(p => Float64[] for p in p_values)
+	Ds_errors_sparse = Dict(p => Float64[] for p in p_values)
+	@progress for p in [0.2, 1.], D in D_values_for_s
+		push!(
+			Ds_errors_dense[p],
+			estimation_error(p=p, D=D, s=s_for_D, ŝ=D)
+		)
+		push!(
+			Ds_errors_sparse[p],
+			estimation_error(p=p, D=D, s=s_for_D, ŝ=s_for_D)
+		)
 	end
 end
 
@@ -576,10 +574,12 @@ h₀_markers = [:hline, :cross, :xcross]
 p_values_for_h₀ = 10 .^ range(-1, 0, npoints)
 
 # ╔═╡ dc8c82bd-7074-46e4-b574-1f6a3b810cd9
-h₀_errors = Dict(
-	h₀ => [estimation_error(p=p, h₀=h₀) for p in p_values_for_h₀]
-	for h₀ in h₀_values
-)
+begin
+	h₀_errors = Dict(h₀ => Float64[] for h₀ in h₀_values)
+	@progress for h₀ in h₀_values, p in p_values_for_h₀
+		push!(h₀_errors[h₀], estimation_error(p=p, h₀=h₀))
+	end
+end
 
 # ╔═╡ 5595ed61-e5f1-4686-b8f6-9c3587270ea5
 begin
@@ -629,16 +629,12 @@ one_b_values0 = 10 .^ range(-2, 0, npoints)
 
 # ╔═╡ fd30295d-72ba-4757-8032-eebad56717a3
 begin
-	b_errors = Dict{Float64, Vector{Float64}}()
-	for p in p_values
-		p == 1 && continue
-		b_errors[p] = Float64[]
-		for one_b in one_b_values0
-			b = 1 - one_b
-			a = b*p/(1-p)
-			if 0 < a < 1
-				push!(b_errors[p], estimation_error(D=D_for_ab, a=a, b=b))
-			end
+	b_errors = Dict(p => Float64[] for p in p_values)
+	@progress for p in p_values[1:end-1], one_b in one_b_values0
+		b = 1 - one_b
+		a = b*p/(1-p)
+		if 0 < a < 1
+			push!(b_errors[p], estimation_error(D=D_for_ab, a=a, b=b))
 		end
 	end
 end
@@ -702,13 +698,11 @@ one_b_values = 10 .^ range(-1.5, 0, npoints_ab+1)[1:end-1]
 begin
 	ab_errors = fill(NaN, npoints_ab, npoints_ab)
 	ab_p = fill(NaN, npoints_ab, npoints_ab)
-	for (i, a) in enumerate(a_values)
-		for (j, one_b) in enumerate(one_b_values)
-			b = 1 - one_b
-			p = a / (a + b)
-			ab_errors[i, j] = estimation_error(D=D_for_ab, a=a, b=b)
-			ab_p[i, j] = p
-		end
+	@progress for (i, a) in enumerate(a_values), (j, one_b) in enumerate(one_b_values)
+		b = 1 - one_b
+		p = a / (a + b)
+		ab_errors[i, j] = estimation_error(D=D_for_ab, a=a, b=b)
+		ab_p[i, j] = p
 	end
 end
 
@@ -752,13 +746,11 @@ p_values_for_pb = 10 .^ range(-1, 0, npoints_ab+1)[1:end-1]
 # ╔═╡ faaf2393-19f5-44d6-9277-7196b35f2d4e
 begin
 	pb_errors = fill(NaN, npoints_ab, npoints_ab)
-	for (i, p) in enumerate(p_values_for_pb)
-		for (j, one_b) in enumerate(one_b_values)
-			b = 1 - one_b
-			a = b*p/(1-p)
-			if a < 1
-				pb_errors[i, j] = estimation_error(D=D_for_ab, a=a, b=b)
-			end
+	@progress for (i, p) in enumerate(p_values_for_pb), (j, one_b) in enumerate(one_b_values)
+		b = 1 - one_b
+		a = b*p/(1-p)
+		if a < 1
+			pb_errors[i, j] = estimation_error(D=D_for_ab, a=a, b=b)
 		end
 	end
 end
@@ -800,7 +792,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 PlutoProfile = "ee419aa8-929d-45cd-acf6-76bd043cd7ba"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
+ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
@@ -813,7 +805,7 @@ JuMP = "~0.21.5"
 MathOptInterface = "~0.9.22"
 PlutoProfile = "~0.1.0"
 PlutoUI = "~0.7.27"
-ProgressMeter = "~1.7.1"
+ProgressLogging = "~0.1.4"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1793,6 +1785,12 @@ git-tree-sha1 = "e4df82a5dadc26736f106f8d7fc97c42cc6c91ae"
 uuid = "132c30aa-f267-4189-9183-c8a63c7e05e6"
 version = "0.2.1"
 
+[[deps.ProgressLogging]]
+deps = ["Logging", "SHA", "UUIDs"]
+git-tree-sha1 = "80d919dee55b9c50e8d9e2da5eeafff3fe58b539"
+uuid = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
+version = "0.1.4"
+
 [[deps.ProgressMeter]]
 deps = ["Distributed", "Printf"]
 git-tree-sha1 = "afadeba63d90ff223a6a48d2009434ecee2ec9e8"
@@ -2120,9 +2118,9 @@ version = "1.6.38+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "c45f4e40e7aafe9d086379e5578947ec8b95a8fb"
+git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+0"
+version = "1.3.7+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
