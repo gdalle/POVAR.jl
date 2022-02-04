@@ -562,13 +562,13 @@ md"""
 """
 
 # ╔═╡ 4f3ff83f-56b9-42b7-9844-cebf8eea9323
-h₀_values = [2, 1, 0]
+h₀_values = [1, 0]
 
 # ╔═╡ 0ecd2072-8669-48c3-90c4-eea124a7b164
-h₀_colors = [:royalblue1, :blue, :midnightblue]
+h₀_colors = [:royalblue1, :midnightblue]
 
 # ╔═╡ eb014af1-18e4-4eda-8a65-7c8d630c3054
-h₀_markers = [:hline, :cross, :xcross]
+h₀_markers = [:xcross, :cross]
 
 # ╔═╡ f033f1d8-24c6-4d82-8ada-599916dc5ff6
 p_values_for_h₀ = 10 .^ range(-1, 0, npoints)
