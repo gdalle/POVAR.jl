@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.7
+# v0.19.16
 
 using Markdown
 using InteractiveUtils
@@ -12,8 +12,6 @@ begin
 	using Distributions
 	using JuMP
 	using LinearAlgebra
-	using MathOptInterface
-	using PlutoProfile
 	using PlutoUI
 	using ProgressLogging
 	using Random
@@ -22,6 +20,9 @@ end
 
 # ╔═╡ 8844d3f8-8317-4e7b-98fe-da3403be173c
 PlutoUI.TableOfContents()
+
+# ╔═╡ 8acaf22f-1d73-4d20-a489-7e2851fb7a08
+plot_path = "plots/"
 
 # ╔═╡ 8e89c07e-c324-46ca-bdee-14ee9d366220
 md"""
@@ -57,12 +58,6 @@ md"""
 # Core code
 """
 
-# ╔═╡ 586bcb26-c931-4d6d-87ac-dc82a93a5a4e
-Random.seed!(63)
-
-# ╔═╡ 8acaf22f-1d73-4d20-a489-7e2851fb7a08
-plot_path = "plots/"
-
 # ╔═╡ 2fcdb163-f32c-4dd5-87ff-d463fd521ce4
 md"""
 ## Simulation
@@ -74,7 +69,7 @@ begin
 	σ̄ = 1.
 	p̄ = 1.
 	ω̄ = 0.1
-	T̄ = 10000
+	T̄ = 10_000
 end;
 
 # ╔═╡ 934fa46d-3b64-48fe-a325-72bf1a453dcc
@@ -171,7 +166,7 @@ function estimate_θ_sparse(π, Y, a, b, ω, h₀, ŝ)
 	while true
 		fix(λ, (λₘₐₓ + λₘᵢₙ) / 2)
 		optimize!(model)
-		@assert termination_status(model) == MathOptInterface.OPTIMAL
+		@assert termination_status(model) == MOI.OPTIMAL
 		θ̂ = value.(θ₊) .- value.(θ₋)
 		if (λₘₐₓ - λₘᵢₙ) / λₘₐₓ < 0.1  # convergence achieved
 			return θ̂
@@ -262,6 +257,7 @@ T_values = round.(Int, 10 .^ range(2, 5, npoints))
 
 # ╔═╡ 9288b659-c784-48ea-9110-5cf33f68179b
 begin
+	Random.seed!(63)
 	T_errors = Dict(p => Float64[] for p in p_values)
 	@progress for p in p_values, T in T_values
 		push!(T_errors[p], estimation_error(p=p, T=T))
@@ -315,6 +311,7 @@ D_values = round.(Int, 10 .^ range(0.5, 2, npoints))
 
 # ╔═╡ 66fb58c0-c7ef-4e14-b73a-c869d9962cc1
 begin
+	Random.seed!(63)
 	D_errors = Dict(p => Float64[] for p in p_values)
 	@progress for p in p_values, D in D_values
 		push!(D_errors[p], estimation_error(p=p, D=D))
@@ -368,6 +365,7 @@ md"""
 
 # ╔═╡ a214165b-2903-42a0-88f1-ecd0f3a90e82
 begin
+	Random.seed!(63)
 	ω_errors = Dict(p => Float64[] for p in p_values)
 	@progress for p in p_values, ω in ω_values
 		push!(ω_errors[p], estimation_error(p=p, ω=ω))
@@ -414,6 +412,7 @@ s_values = 5:1:30
 
 # ╔═╡ dd47d8a8-b379-4cc5-991d-6df0d0f6fcb7
 begin
+	Random.seed!(63)
 	s_errors_dense = Dict(p => Float64[] for p in p_values)
 	s_errors_sparse = Dict(p => Float64[] for p in p_values)
 	@progress for p in p_values, s in s_values
@@ -480,6 +479,7 @@ D_values_for_s = 5:1:50
 
 # ╔═╡ cf97f7df-3930-4fc8-8077-6379a7365e5c
 begin
+	Random.seed!(63)
 	Ds_errors_dense = Dict(p => Float64[] for p in p_values)
 	Ds_errors_sparse = Dict(p => Float64[] for p in p_values)
 	@progress for p in [0.2, 1.], D in D_values_for_s
@@ -575,6 +575,7 @@ p_values_for_h₀ = 10 .^ range(-1, 0, npoints)
 
 # ╔═╡ dc8c82bd-7074-46e4-b574-1f6a3b810cd9
 begin
+	Random.seed!(63)
 	h₀_errors = Dict(h₀ => Float64[] for h₀ in h₀_values)
 	@progress for h₀ in h₀_values, p in p_values_for_h₀
 		push!(h₀_errors[h₀], estimation_error(p=p, h₀=h₀))
@@ -629,6 +630,7 @@ one_b_values0 = 10 .^ range(-2, 0, npoints)
 
 # ╔═╡ fd30295d-72ba-4757-8032-eebad56717a3
 begin
+	Random.seed!(63)
 	b_errors = Dict(p => Float64[] for p in p_values)
 	@progress for p in p_values[1:end-1], one_b in one_b_values0
 		b = 1 - one_b
@@ -696,6 +698,7 @@ one_b_values = 10 .^ range(-1.5, 0, npoints_ab+1)[1:end-1]
 
 # ╔═╡ 751c6b7f-9a50-42d3-ac74-bae7c0a85fc8
 begin
+	Random.seed!(63)
 	ab_errors = fill(NaN, npoints_ab, npoints_ab)
 	ab_p = fill(NaN, npoints_ab, npoints_ab)
 	@progress for (i, a) in enumerate(a_values), (j, one_b) in enumerate(one_b_values)
@@ -745,6 +748,7 @@ p_values_for_pb = 10 .^ range(-1, 0, npoints_ab+1)[1:end-1]
 
 # ╔═╡ faaf2393-19f5-44d6-9277-7196b35f2d4e
 begin
+	Random.seed!(63)
 	pb_errors = fill(NaN, npoints_ab, npoints_ab)
 	@progress for (i, p) in enumerate(p_values_for_pb), (j, one_b) in enumerate(one_b_values)
 		b = 1 - one_b
@@ -789,8 +793,6 @@ Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
-PlutoProfile = "ee419aa8-929d-45cd-acf6-76bd043cd7ba"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
@@ -802,8 +804,6 @@ Clp = "~0.8.4"
 Colors = "~0.12.8"
 Distributions = "~0.25.37"
 JuMP = "~0.21.5"
-MathOptInterface = "~0.9.22"
-PlutoProfile = "~0.1.0"
 PlutoUI = "~0.7.27"
 ProgressLogging = "~0.1.4"
 """
@@ -812,8 +812,9 @@ ProgressLogging = "~0.1.4"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.1"
+julia_version = "1.8.3"
 manifest_format = "2.0"
+project_hash = "5c3cafaa0f3460982e892bd9436a72fbfdee8844"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -846,6 +847,7 @@ version = "0.4.1"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
+version = "1.1.1"
 
 [[deps.ArrayInterface]]
 deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
@@ -1005,23 +1007,13 @@ version = "3.41.0"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-
-[[deps.Configurations]]
-deps = ["Crayons", "ExproniconLite", "OrderedCollections", "TOML"]
-git-tree-sha1 = "b8486a417456d2fbbe2af13e24cef459c9f42429"
-uuid = "5218b696-f38b-4ac9-8b61-a12ec717816d"
-version = "0.15.4"
+version = "0.5.2+0"
 
 [[deps.Contour]]
 deps = ["StaticArrays"]
 git-tree-sha1 = "9f02045d934dc030edad45944ea80dbd1f0ebea7"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.5.7"
-
-[[deps.Crayons]]
-git-tree-sha1 = "b618084b49e78985ffa8422f32b9838e397b9fc2"
-uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
-version = "4.1.0"
 
 [[deps.DataAPI]]
 git-tree-sha1 = "cc70b17275652eb47bc9e5f81635981f13cea5c8"
@@ -1082,8 +1074,9 @@ uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 version = "0.8.6"
 
 [[deps.Downloads]]
-deps = ["ArgTools", "LibCURL", "NetworkOptions"]
+deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+version = "1.6.0"
 
 [[deps.EarCut_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1102,11 +1095,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "b3bfd02e98aedfa5cf885665493c5598c350cd2f"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
 version = "2.2.10+0"
-
-[[deps.ExproniconLite]]
-git-tree-sha1 = "8b08cc88844e4d01db5a2405a08e9178e19e479e"
-uuid = "55351af7-c7e9-48d6-89ff-24e801d99491"
-version = "0.6.13"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -1153,12 +1141,6 @@ git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.8.4"
 
-[[deps.FlameGraphs]]
-deps = ["AbstractTrees", "Colors", "FileIO", "FixedPointNumbers", "IndirectArrays", "LeftChildRightSiblingTrees", "Profile"]
-git-tree-sha1 = "358df0acb0526b2201c35d96f5cc6fca85c27fbe"
-uuid = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
-version = "0.2.8"
-
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Pkg", "Zlib_jll"]
 git-tree-sha1 = "21efd19106a55620a188615da6d3d06cd7f6ee03"
@@ -1200,12 +1182,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "aa31987c2ba8704e23c6c8ba8a4f769d5d7e4f91"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.10+0"
-
-[[deps.FuzzyCompletions]]
-deps = ["REPL"]
-git-tree-sha1 = "2cc2791b324e8ed387a91d7226d17be754e9de61"
-uuid = "fb4132e2-a121-4a70-b8a1-d5b831dcdcc2"
-version = "0.4.3"
 
 [[deps.GeometryBasics]]
 deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
@@ -1416,19 +1392,15 @@ version = "1.3.0"
 deps = ["Artifacts", "Pkg"]
 uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 
-[[deps.LeftChildRightSiblingTrees]]
-deps = ["AbstractTrees"]
-git-tree-sha1 = "b864cb409e8e445688bc478ef87c0afe4f6d1f8d"
-uuid = "1d6d02ad-be62-4b6b-8a6d-2f90e265016e"
-version = "0.1.3"
-
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
+version = "0.6.3"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
+version = "7.84.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
@@ -1437,6 +1409,7 @@ uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
+version = "1.10.2+0"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -1561,6 +1534,7 @@ version = "1.0.3"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
+version = "2.28.0+0"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
@@ -1579,12 +1553,7 @@ version = "0.3.3"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-
-[[deps.MsgPack]]
-deps = ["Serialization"]
-git-tree-sha1 = "a8cbf066b54d793b9a48c5daa5d586cf2b5bd43d"
-uuid = "99f44e22-a591-53d1-9472-aa23ef4bd671"
-version = "1.1.0"
+version = "2022.2.1"
 
 [[deps.MutableArithmetics]]
 deps = ["LinearAlgebra", "SparseArrays", "Test"]
@@ -1605,6 +1574,7 @@ version = "1.0.2"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
+version = "1.2.0"
 
 [[deps.Observables]]
 git-tree-sha1 = "fe29afdef3d0c4a8286128d4e45cc50621b1e43d"
@@ -1632,6 +1602,7 @@ version = "0.3.17+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
+version = "0.3.20+0"
 
 [[deps.OpenEXR]]
 deps = ["Colors", "FileIO", "OpenEXR_jll"]
@@ -1648,6 +1619,7 @@ version = "3.1.1+0"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
+version = "0.8.1+0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1729,6 +1701,7 @@ version = "0.40.1+0"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+version = "1.8.0"
 
 [[deps.PkgVersion]]
 deps = ["Pkg"]
@@ -1741,18 +1714,6 @@ deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Stat
 git-tree-sha1 = "68604313ed59f0408313228ba09e79252e4b2da8"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "1.1.2"
-
-[[deps.Pluto]]
-deps = ["Base64", "Configurations", "Dates", "Distributed", "FileWatching", "FuzzyCompletions", "HTTP", "InteractiveUtils", "Logging", "Markdown", "MsgPack", "Pkg", "REPL", "Sockets", "TableIOInterface", "Tables", "UUIDs"]
-git-tree-sha1 = "6af6088f72ae82c8b6712047b5fe79c22016b878"
-uuid = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
-version = "0.15.1"
-
-[[deps.PlutoProfile]]
-deps = ["AbstractTrees", "FlameGraphs", "Pluto", "Profile", "ProfileSVG"]
-git-tree-sha1 = "9b9f8ab07456d9e6682e7e2e6f72a88e1f8714a2"
-uuid = "ee419aa8-929d-45cd-acf6-76bd043cd7ba"
-version = "0.1.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -1778,12 +1739,6 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 [[deps.Profile]]
 deps = ["Printf"]
 uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
-
-[[deps.ProfileSVG]]
-deps = ["Colors", "FlameGraphs", "Profile", "UUIDs"]
-git-tree-sha1 = "e4df82a5dadc26736f106f8d7fc97c42cc6c91ae"
-uuid = "132c30aa-f267-4189-9183-c8a63c7e05e6"
-version = "0.2.1"
 
 [[deps.ProgressLogging]]
 deps = ["Logging", "SHA", "UUIDs"]
@@ -1848,6 +1803,7 @@ version = "0.3.0+0"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+version = "0.7.0"
 
 [[deps.SIMD]]
 git-tree-sha1 = "9ba33637b24341aba594a2783a502760aa0bff04"
@@ -1956,11 +1912,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-
-[[deps.TableIOInterface]]
-git-tree-sha1 = "9a0d3ab8afd14f33a35af7391491ff3104401a35"
-uuid = "d1efa939-5518-4425-949f-ab857e148477"
-version = "0.1.6"
+version = "1.0.0"
 
 [[deps.TableTraits]]
 deps = ["IteratorInterfaceExtensions"]
@@ -1977,6 +1929,7 @@ version = "1.6.1"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
+version = "1.10.1"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -2087,6 +2040,7 @@ version = "1.4.0+3"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
+version = "1.2.12+3"
 
 [[deps.isoband_jll]]
 deps = ["Libdl", "Pkg"]
@@ -2103,6 +2057,7 @@ version = "0.15.1+0"
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
+version = "5.1.1+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -2125,10 +2080,12 @@ version = "1.3.7+1"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
+version = "1.48.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
+version = "17.4.0+0"
 
 [[deps.x264_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -2144,13 +2101,12 @@ version = "3.5.0+0"
 """
 
 # ╔═╡ Cell order:
+# ╠═cc48914c-6e47-11ec-2ebb-a734d4f5f9fc
 # ╠═8844d3f8-8317-4e7b-98fe-da3403be173c
+# ╠═8acaf22f-1d73-4d20-a489-7e2851fb7a08
 # ╟─8e89c07e-c324-46ca-bdee-14ee9d366220
 # ╟─1a3ebfe0-2bae-4e7c-8bfc-0ec9717f303b
 # ╟─01676dff-d535-4acd-9d28-85221e1d34f7
-# ╠═cc48914c-6e47-11ec-2ebb-a734d4f5f9fc
-# ╠═586bcb26-c931-4d6d-87ac-dc82a93a5a4e
-# ╠═8acaf22f-1d73-4d20-a489-7e2851fb7a08
 # ╟─2fcdb163-f32c-4dd5-87ff-d463fd521ce4
 # ╠═b641ffb3-d1ad-40e2-be79-bac2dddde8cf
 # ╠═934fa46d-3b64-48fe-a325-72bf1a453dcc
